@@ -3,7 +3,7 @@ package book
 import (
 	"github.com/go-kit/kit/log"
 	"math/rand"
-	"nocai/gokit-demo/infra/client/auth"
+	"nocai/gokit-demo/modules/client/auth"
 )
 
 var books = []Book{
@@ -27,7 +27,19 @@ func NewService(l log.Logger, authClient auth.Service) Service {
 
 func (ser service) Books() ([]Book, error) {
 	ser.l.Log("method", "Books")
-	ser.authClient.Ping()
+	//return books, nil
+	//panic("bbbbbbbb")
+	//return nil, fmt.Errorf("aaaaaaaaaa")
+	//return nil, returncodes.Fail("fail")
+	//return books, returncodes.ErrBook
+
+	//var wg sync.WaitGroup
+	//wg.Add(1)
+	//go func() {
+	//	wg.Done()
+	//	panic("panic")
+	//}()
+	//wg.Wait()
 	return books, nil
 }
 

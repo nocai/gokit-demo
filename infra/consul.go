@@ -25,7 +25,7 @@ func ConsulApi(l log.Logger, consulAddr string) *api.Client {
 	return consulApi
 }
 
-func ConsulResgister(l log.Logger, consulClient consul.Client, port int) {
+func ConsulRegister(l log.Logger, consulClient consul.Client, port int) {
 	if err := consulClient.Register(&api.AgentServiceRegistration{
 		ID:   fmt.Sprintf("%v:%v:%d", constants.AppName, LocalIP(), port),
 		Name: constants.AppName,

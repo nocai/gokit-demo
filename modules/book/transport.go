@@ -3,8 +3,7 @@ package book
 import (
 	"context"
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/transport"
-	kithttp "github.com/go-kit/kit/transport/http"
+	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"net/http"
 	"nocai/gokit-demo/infra"
@@ -12,18 +11,17 @@ import (
 	"strconv"
 )
 
-func MakeHandler(bs Service, logger log.Logger) http.Handler {
-	opts := []kithttp.ServerOption{
-		kithttp.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
-	}
-	booksHandler := kithttp.NewServer(
+func MakeHandler(bs Service, l log.Logger) http.Handler {
+	opts := infra.ServerOptions(l)
+
+	booksHandler := httptransport.NewServer(
 		makeBookEndpoint(bs),
-		kithttp.NopRequestDecoder,
+		httptransport.NopRequestDecoder,
 		infra.EncodeResponse,
 		opts...,
 	)
 
-	getByIdHandler := kithttp.NewServer(
+	getByIdHandler := httptransport.NewServer(
 		makeGetByIdEndpoint(bs),
 		decodeGetByIdRequest,
 		infra.EncodeResponse,

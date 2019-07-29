@@ -2,41 +2,53 @@ package auth
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/go-kit/kit/endpoint"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/sd"
+	"github.com/go-kit/kit/sd/consul"
+	"github.com/go-kit/kit/sd/lb"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"io"
 	"net/http"
 	"net/url"
+	"nocai/gokit-demo/infra/returncodes"
 	"strings"
+	"time"
 )
 
-type Service interface {
-	Verify()
-	Ping()
-}
+func NewClient(l log.Logger, consulClient consul.Client) Service {
+	var (
+		consulService = "ivargo-auth"
+		consulTags    = []string{}
+		passingOnly   = true
+		retryMax      = 3
+		retryTimeout  = 500 * time.Millisecond
+	)
 
-type Endpoints struct {
-	PingEndpoint   endpoint.Endpoint
-	VerifyEndpoint endpoint.Endpoint
-}
+	var (
+		instancer = consul.NewInstancer(consulClient, l, consulService, consulTags, passingOnly)
+		endpoints Endpoints
+	)
 
-func (ep Endpoints) Verify() {
-
-}
-
-func (ep Endpoints) Ping() {
-	resp, e := ep.PingEndpoint(context.Background(), nil)
-	if e != nil {
-		fmt.Println(e)
+	{
+		factory := factoryFor(MakePingEndpoint)
+		endpointer := sd.NewEndpointer(instancer, factory, l)
+		balancer := lb.NewRoundRobin(endpointer)
+		retry := lb.Retry(retryMax, retryTimeout, balancer)
+		endpoints.PingEndpoint = retry
 	}
-	fmt.Println(resp)
+
+	return endpoints
 }
 
-func MakePingEndpoint(ser Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		ser.Ping()
-		return nil, nil
+func factoryFor(makeEndpoint func(Service) endpoint.Endpoint) sd.Factory {
+	return func(instance string) (endpoint.Endpoint, io.Closer, error) {
+
+		service, err := MakeClientEndpoints(instance)
+		if err != nil {
+			return nil, nil, err
+		}
+		return makeEndpoint(service), nil, nil
 	}
 }
 
@@ -70,7 +82,5 @@ func encodePingRequest(_ context.Context, req *http.Request, _ interface{}) erro
 }
 
 func decodePingResponse(_ context.Context, resp *http.Response) (interface{}, error) {
-	var response string
-	err := json.NewDecoder(resp.Body).Decode(&response)
-	return response, err
+	return returncodes.Unmarshal(resp.Body)
 }

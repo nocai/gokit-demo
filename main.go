@@ -8,10 +8,10 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
-	"nocai/gokit-demo/book"
 	"nocai/gokit-demo/infra"
-	"nocai/gokit-demo/infra/client/auth"
 	"nocai/gokit-demo/infra/constants"
+	"nocai/gokit-demo/modules/book"
+	"nocai/gokit-demo/modules/client/auth"
 	"os"
 	"os/signal"
 	"syscall"
@@ -47,8 +47,10 @@ func main() {
 		infra.ConsulKv(l, consulApi, consulAddr, configPath)
 
 		consulClient = consul.NewClient(consulApi)
-		infra.ConsulResgister(l, consulClient, port)
+		infra.ConsulRegister(l, consulClient, port)
 	}
+
+	authClient := auth.NewClient(l, consulClient)
 
 	{
 		http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -56,19 +58,22 @@ func main() {
 			w.Write([]byte("pong"))
 		})
 		http.Handle("/metrics", promhttp.Handler())
+
+		var bs book.Service
+		{
+			bs = book.NewService(l, authClient)
+		}
+
+		http.Handle("/books/", accessControl(book.MakeHandler(bs, l)))
+
+		http.HandleFunc("/authPing", func(w http.ResponseWriter, r *http.Request) {
+			returnCoder, err := authClient.Ping()
+			if err != nil {
+				l.Log("error", err)
+			}
+			l.Log("returnCoder", fmt.Sprint(returnCoder))
+		})
 	}
-
-	authClient := auth.New(l, consulClient)
-
-	var bs book.Service
-	{
-		bs = book.NewService(l, authClient)
-	}
-
-
-
-
-	http.Handle("/books/", accessControl(book.MakeHandler(bs, l)))
 
 	errs := make(chan error)
 	go func() {
