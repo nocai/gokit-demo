@@ -11,7 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"nocai/gokit-demo/infra/returncodes"
+	"github.com/nocai/gokit-demo/infra/returncodes"
 	"strings"
 	"time"
 )

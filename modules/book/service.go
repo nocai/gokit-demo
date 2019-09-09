@@ -3,7 +3,7 @@ package book
 import (
 	"github.com/go-kit/kit/log"
 	"math/rand"
-	"nocai/gokit-demo/modules/client/auth"
+	"github.com/nocai/gokit-demo/modules/client/auth"
 )
 
 var books = []Book{

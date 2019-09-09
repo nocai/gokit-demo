@@ -1,4 +1,4 @@
-module nocai/gokit-demo
+module github.com/github.com/nocai/gokit-demo
 
 go 1.12
 

@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/go-kit/kit/endpoint"
-	"nocai/gokit-demo/infra/returncodes"
+	"github.com/nocai/gokit-demo/infra/returncodes"
 )
 
 type Service interface {

@@ -6,8 +6,8 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"net/http"
-	"nocai/gokit-demo/infra"
-	"nocai/gokit-demo/infra/returncodes"
+	"github.com/nocai/gokit-demo/infra"
+	"github.com/nocai/gokit-demo/infra/returncodes"
 	"strconv"
 )
 

@@ -6,8 +6,8 @@ import (
 	"github.com/go-kit/kit/sd/consul"
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/api/watch"
-	"nocai/gokit-demo/infra/configs"
-	"nocai/gokit-demo/infra/constants"
+	"github.com/nocai/gokit-demo/infra/configs"
+	"github.com/nocai/gokit-demo/infra/constants"
 	"os"
 )
 

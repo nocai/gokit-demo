@@ -6,7 +6,7 @@ import (
 	"github.com/go-kit/kit/transport"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"net/http"
-	"nocai/gokit-demo/infra/returncodes"
+	"github.com/nocai/gokit-demo/infra/returncodes"
 )
 
 func ServerOptions(l log.Logger) []httptransport.ServerOption {
